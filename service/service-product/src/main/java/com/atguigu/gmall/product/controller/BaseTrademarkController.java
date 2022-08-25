@@ -4,13 +4,18 @@ import com.atguigu.gmall.common.result.Result;
 import com.atguigu.gmall.model.product.BaseTrademark;
 import com.atguigu.gmall.product.service.BaseTrademarkService;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * @Author xjrstart
  * @Date 2022-08-24-11:19
  */
+@Api(tags = "品牌操作")
 @RestController
 @RequestMapping("/admin/product")
 public class BaseTrademarkController {
@@ -19,6 +24,7 @@ public class BaseTrademarkController {
     BaseTrademarkService baseTrademarkService;
 
     //分页查询所有品牌
+    @ApiOperation(value = "分页查询所有品牌")
     @GetMapping("/baseTrademark/{pageNum}/{pageSize}")
     public Result baseTrademark(@PathVariable("pageNum") Long pageNum,
                                 @PathVariable("pageSize") Long pageSize){
@@ -35,6 +41,7 @@ public class BaseTrademarkController {
     }
 
     // 根据品牌id获取品牌信息
+    @ApiOperation(value = "根据品牌id获取品牌信息")
     @GetMapping("/baseTrademark/get/{id}")
     public Result getBaseTrademark(@PathVariable("id") Long id){
         BaseTrademark trademark = baseTrademarkService.getById(id);
@@ -42,6 +49,7 @@ public class BaseTrademarkController {
     }
 
         // 修改平拍信息
+    @ApiOperation(value = "修改平拍信息")
     @PutMapping("/baseTrademark/update")
     //数据是json，BaseTrademark：让json自动转为品牌
     public Result updateBaseTrademark(@RequestBody BaseTrademark trademark){
@@ -50,16 +58,27 @@ public class BaseTrademarkController {
         return Result.ok();
     }
     // 保存品牌
+    @ApiOperation(value = "保存品牌")
     @PostMapping("/baseTrademark/save")
     public Result saveBaseTrademark(@RequestBody BaseTrademark trademark){
         baseTrademarkService.save(trademark);
         return Result.ok();
     }
     // 根据id删除品牌  /baseTrademark/remove/2
+    @ApiOperation(value = "根据id删除品牌")
     @DeleteMapping("/baseTrademark/remove/{tid}")
     public Result deleteBaseTrademark(@PathVariable("tid")Long tid){
         baseTrademarkService.removeById(tid);
         return Result.ok();
+    }
+
+    @ApiOperation(value = "查询所有品牌")
+    @GetMapping("/baseTrademark/getTrademarkList")
+    public Result getTrademarkList(){
+
+        List<BaseTrademark> list = baseTrademarkService.list();
+
+        return Result.ok(list);
     }
 }
 

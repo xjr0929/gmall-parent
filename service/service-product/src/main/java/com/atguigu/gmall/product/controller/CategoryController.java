@@ -7,6 +7,8 @@ import com.atguigu.gmall.model.product.BaseCategory3;
 import com.atguigu.gmall.product.service.BaseCategory1Service;
 import com.atguigu.gmall.product.service.BaseCategory2Service;
 import com.atguigu.gmall.product.service.BaseCategory3Service;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,6 +28,7 @@ import java.util.List;
 * 所有请求全部返回Result对象JSON，所有要写打的数据要放到Result的data属性内即可
 * */
     //@ResponseBody 所有的响应数据都是直接写给浏览器（如果是对象就写成json，如果是文本就写成普通字符串）
+@Api(tags = "分类请求处理器")
 @RequestMapping("/admin/product")
 @RestController  //@Controller 这个类是来接受请求的
 
@@ -42,6 +45,7 @@ public class CategoryController {
     /*
     * 获取所有的一级分类
     * */
+    @ApiOperation(value = "获取所有一级分类")
     @GetMapping("/getCategory1")
     public Result getCategory1(){
         //利用mybatis提供好的CRUD方法，查询出所有的一级分类
@@ -54,6 +58,7 @@ public class CategoryController {
     /*
     * 获取某个一级分类下的所有二级分类
     * */
+    @ApiOperation(value = "获取某个一级分类下的所有二级分类")
     @GetMapping("/getCategory2/{c1Id}")
     public Result getCategory2(@PathVariable("c1Id") Long c1Id){
         //查询ciId对应的所有的二级分类
@@ -61,6 +66,7 @@ public class CategoryController {
         return Result.ok(category2s);
     }
 
+    @ApiOperation(value = "获取某个二级分类下的所有三级分类")
     @GetMapping("/getCategory3/{c2Id}")
     public Result getCategory3(@PathVariable("c2Id") Long c2Id){
         List<BaseCategory3> category3s = baseCategory3Service.getCategory2Child(c2Id);

@@ -4,11 +4,13 @@ import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 /**
  * @Author xjrstart
  * @Date 2022-08-24-11:32
  */
+@EnableTransactionManagement  // 开启基于注解的事务
 @Configuration // 说明这是一个配置类
 public class MybatisPlusConfig {
 

@@ -1,17 +1,28 @@
 package com.atguigu.gmall.product.controller;
 
 import com.atguigu.gmall.common.result.Result;
+import com.atguigu.gmall.product.service.FileUploadService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * @Author xjrstart
  * @Date 2022-08-24-16:52
  */
+@Api(tags = "文件上传控制器")
 @RestController
 @RequestMapping("/admin/product")
 public class FileUploadController {
+
+    @Autowired
+    FileUploadService fileUploadService;
+
     /*
     *  文件上传
     * 前端把文件路放到哪里？
@@ -29,10 +40,13 @@ public class FileUploadController {
     * @CookieValue: 获取浏览器发送的请求的cookie值
     * - 如果多个就写数组 ，否则就写单个对象
     * */
+    @ApiOperation(value = "文件上传")
     @PostMapping("/fileUpload")
-    public Result fileUpload(){
+    public Result fileUpload(@RequestPart("file") MultipartFile file) throws Exception{
 
-        return Result.ok();
+        String url = fileUploadService.upload(file);
+
+        return Result.ok(url);
     }
 }
 
