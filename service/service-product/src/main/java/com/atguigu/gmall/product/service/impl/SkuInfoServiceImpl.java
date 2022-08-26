@@ -1,19 +1,17 @@
 package com.atguigu.gmall.product.service.impl;
 
 
-import com.atguigu.gmall.model.product.SkuAttrValue;
-import com.atguigu.gmall.model.product.SkuImage;
-import com.atguigu.gmall.model.product.SkuInfo;
-import com.atguigu.gmall.model.product.SkuSaleAttrValue;
+import com.atguigu.gmall.model.product.*;
+import com.atguigu.gmall.model.to.CategoryViewTo;
+import com.atguigu.gmall.model.to.SkuDetailTo;
+import com.atguigu.gmall.product.mapper.BaseCategory3Mapper;
 import com.atguigu.gmall.product.mapper.SkuInfoMapper;
-import com.atguigu.gmall.product.service.SkuAttrValueService;
-import com.atguigu.gmall.product.service.SkuImageService;
-import com.atguigu.gmall.product.service.SkuInfoService;
-import com.atguigu.gmall.product.service.SkuSaleAttrValueService;
+import com.atguigu.gmall.product.service.*;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -36,6 +34,12 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoMapper, SkuInfo>
 
     @Autowired
     SkuInfoMapper skuInfoMapper;
+
+    @Autowired
+    BaseCategory3Mapper baseCategory3Mapper;
+
+    @Autowired
+    SpuSaleAttrService spuSaleAttrService;
 
     @Override
     public void saveSkuInfo(SkuInfo info) {
@@ -76,6 +80,40 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoMapper, SkuInfo>
     @Override
     public void onSale(Long skuId) {
         skuInfoMapper.updateIsSale(skuId,1);
+    }
+
+    @Override
+    public SkuDetailTo getSkuDetail(Long skuId) {
+        SkuDetailTo detailTo = new SkuDetailTo();
+        //0 查询到skuInfo
+        SkuInfo skuInfo = skuInfoMapper.selectById(skuId);
+
+        //1 查询商品所属的完整分类信息
+        CategoryViewTo categoryViewTo = baseCategory3Mapper.getCategoryView(skuInfo.getCategory3Id());
+        detailTo.setCategoryView(categoryViewTo);
+
+        //2 商品的基本信息
+        detailTo.setSkuInfo(skuInfo);
+
+        //3 商品的图片
+        List<SkuImage> imageList = skuImageService.getSkuImage(skuId); // 查询到sku的所有图片
+        skuInfo.setSkuImageList(imageList);
+
+        //4 实时价格
+        BigDecimal price = get1010Price(skuId);
+        detailTo.setPrice(price);
+
+        //查出当前sku对应的spu当时定义的销售属性的名和值,并且固定好数据
+        List<SpuSaleAttr> saleAttrList = spuSaleAttrService.getSaleAttrAndValueMarkSku(skuInfo.getSpuId(),skuId);
+        detailTo.setSpuSaleAttrList(saleAttrList);
+
+        return detailTo;
+    }
+
+    @Override
+    public BigDecimal get1010Price(Long skuId) {
+        BigDecimal price = skuInfoMapper.getRealPrice(skuId);
+        return price;
     }
 }
 

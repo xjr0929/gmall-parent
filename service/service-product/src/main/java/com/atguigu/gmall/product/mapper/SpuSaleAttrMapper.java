@@ -15,7 +15,10 @@ import java.util.List;
 */
 public interface SpuSaleAttrMapper extends BaseMapper<SpuSaleAttr> {
 
+    //根据spuId查询对应的所有销售属性的名和值
     List<SpuSaleAttr> getSaleAttrAndValueBySpuId(@Param("spuId") Long spuId);
+    //查询当前sku对应的spu定义的所有销售属性名和值并且标记好当前sku属于那一种组合
+    List<SpuSaleAttr> getSaleAttrAndValueMarkSku(@Param("spuId") Long spuId, @Param("skuId") Long skuId);
 }
 
 
