@@ -1,6 +1,7 @@
 package com.atguigu.gmall.item.api;
 
 import com.atguigu.gmall.common.result.Result;
+import com.atguigu.gmall.item.feign.SkuDetailFeignClient;
 import com.atguigu.gmall.item.service.SkuDetailService;
 import com.atguigu.gmall.model.to.SkuDetailTo;
 import io.swagger.annotations.Api;
@@ -10,7 +11,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.xml.soap.Detail;
 
 /**
  * @Author xjrstart
@@ -25,13 +25,12 @@ public class SkuDetailApiController {
     SkuDetailService skuDetailService;
 
     @GetMapping("/skudetail/{skuId}")
-    public Result<SkuDetailTo> getSkuDetail(@PathVariable("skuId")Long skuId){
+    public Result<SkuDetailTo> getSkuDetail(@PathVariable("skuId")Long skuId) {
 
         SkuDetailTo skuDetailTo = skuDetailService.getSkuDetail(skuId);
 
         return Result.ok(skuDetailTo);
     }
-
 }
 
 

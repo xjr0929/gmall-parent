@@ -4,6 +4,7 @@ package com.atguigu.gmall.product.service.impl;
 import com.atguigu.gmall.model.product.*;
 import com.atguigu.gmall.model.to.CategoryViewTo;
 import com.atguigu.gmall.model.to.SkuDetailTo;
+import com.atguigu.gmall.model.to.ValueSkuJsonTo;
 import com.atguigu.gmall.product.mapper.BaseCategory3Mapper;
 import com.atguigu.gmall.product.mapper.SkuInfoMapper;
 import com.atguigu.gmall.product.service.*;
@@ -82,6 +83,7 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoMapper, SkuInfo>
         skuInfoMapper.updateIsSale(skuId,1);
     }
 
+    @Deprecated
     @Override
     public SkuDetailTo getSkuDetail(Long skuId) {
         SkuDetailTo detailTo = new SkuDetailTo();
@@ -107,6 +109,12 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoMapper, SkuInfo>
         List<SpuSaleAttr> saleAttrList = spuSaleAttrService.getSaleAttrAndValueMarkSku(skuInfo.getSpuId(),skuId);
         detailTo.setSpuSaleAttrList(saleAttrList);
 
+        //当前商品（sku）的所有兄弟产品的销售属性名和值组合关系全部查出来，封装成{""188|120:"50"}
+        Long id = skuInfo.getId();
+        Long spuId = skuInfo.getSpuId();
+        String valueJson = spuSaleAttrService.getAllSkuSaleAttrValueJson(spuId);
+        detailTo.setValuesSkuJson(valueJson);
+
         return detailTo;
     }
 
@@ -114,6 +122,19 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoMapper, SkuInfo>
     public BigDecimal get1010Price(Long skuId) {
         BigDecimal price = skuInfoMapper.getRealPrice(skuId);
         return price;
+    }
+
+    //查询sku的info信息
+    @Override
+    public SkuInfo getDetailSkuInfo(Long skuId) {
+        SkuInfo skuInfo = skuInfoMapper.selectById(skuId);
+        return skuInfo;
+    }
+    // 查询sku的图片信息
+    @Override
+    public List<SkuImage> getDetailSkuImages(Long skuId) {
+        List<SkuImage> imageList = skuImageService.getSkuImage(skuId);
+        return imageList;
     }
 }
 
