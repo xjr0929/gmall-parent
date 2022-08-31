@@ -1,6 +1,8 @@
 package com.atguigu.gmall.item.service.impl;
 
+import com.atguigu.gmall.common.constant.SysRedisConst;
 import com.atguigu.gmall.common.result.Result;
+import com.atguigu.gmall.item.cache.CacheOpsService;
 import com.atguigu.gmall.item.feign.SkuDetailFeignClient;
 import com.atguigu.gmall.item.service.SkuDetailService;
 import com.atguigu.gmall.model.product.SkuImage;
@@ -8,6 +10,8 @@ import com.atguigu.gmall.model.product.SkuInfo;
 import com.atguigu.gmall.model.product.SpuSaleAttr;
 import com.atguigu.gmall.model.to.CategoryViewTo;
 import com.atguigu.gmall.model.to.SkuDetailTo;
+import com.fasterxml.jackson.databind.node.ContainerNode;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +23,7 @@ import java.util.concurrent.*;
  * @Author xjrstart
  * @Date 2022-08-26-21:44
  */
+@Slf4j
 @Service
 public class SkuDetailServiceImpl implements SkuDetailService {
 
@@ -28,8 +33,11 @@ public class SkuDetailServiceImpl implements SkuDetailService {
     @Autowired
     ThreadPoolExecutor executor;
 
-    @Override
-    public SkuDetailTo getSkuDetail(Long skuId) {
+    @Autowired
+    CacheOpsService cacheOpsService;
+
+
+    public SkuDetailTo getSkuDetailFromRpc(Long skuId) {
         SkuDetailTo detailTo = new SkuDetailTo();
 
         CountDownLatch downLatch = new CountDownLatch(6);
@@ -47,8 +55,10 @@ public class SkuDetailServiceImpl implements SkuDetailService {
 
         //查商品图片信息
         CompletableFuture<Void> imageFuture = skuInfoFuture.thenAcceptAsync(skuInfo-> {
+            if (skuInfo != null){
             Result<List<SkuImage>> skuImages = skuDetailFeignClient.getSkuImages(skuId);
             skuInfo.setSkuImageList(skuImages.getData());
+            }
         }, executor);
         // 查商品的实时价格
         CompletableFuture<Void> priceFuture = CompletableFuture.runAsync(() -> {
@@ -59,23 +69,29 @@ public class SkuDetailServiceImpl implements SkuDetailService {
 
         // 查销售属性组合
         CompletableFuture<Void> saleAttrFuture = skuInfoFuture.thenAcceptAsync(skuInfo -> {
+            if (skuInfo != null) {
             Long spuId = skuInfo.getSpuId();
             Result<List<SpuSaleAttr>> saleAttrValues = skuDetailFeignClient.getSkuSaleattrvalues(spuId, skuId);
             detailTo.setSpuSaleAttrList(saleAttrValues.getData());
+            }
         }, executor);
 
 
         // 查sku组合
         CompletableFuture<Void> skuValueFuture = skuInfoFuture.thenAcceptAsync(skuInfo -> {
+            if (skuInfo != null){
             Result<String> skuValueJson = skuDetailFeignClient.getSkuValueJson(skuInfo.getSpuId());
             detailTo.setValuesSkuJson(skuValueJson.getData());
+            }
         }, executor);
 
 
         // 查分类
         CompletableFuture<Void> categoryFuture = skuInfoFuture.thenAcceptAsync(skuInfo -> {
+            if (skuInfo != null){
             Result<CategoryViewTo> categoryView = skuDetailFeignClient.getCategoryView(skuInfo.getCategory3Id());
             detailTo.setCategoryView(categoryView.getData());
+            }
         }, executor);
 
 
@@ -84,6 +100,41 @@ public class SkuDetailServiceImpl implements SkuDetailService {
                 .join();
 
         return detailTo;
+    }
+
+    @Override
+    public SkuDetailTo getSkuDetail(Long skuId) {
+        String cacheKey = SysRedisConst.SKU_INFO_PREFIX + skuId;
+        //先查缓存
+        SkuDetailTo cacheData = cacheOpsService.getCacheData(cacheKey,SkuDetailTo.class);
+        //判断
+        if (cacheData == null){
+            //缓存中没有,先问布隆是否有这个商品
+            boolean contain = cacheOpsService.bloomContains(skuId);
+            if (!contain){
+                //布隆说没有  一定没有
+                return null;
+            }
+            // 布隆说有 有可能有 需要回源查数据
+            boolean lock = cacheOpsService.tryLock(skuId); // 为当前商品添加一个属于自己的锁
+            if (lock){
+                //获取锁成功
+                SkuDetailTo fromRpc = getSkuDetailFromRpc(skuId);
+                //数据放到缓存
+                cacheOpsService.saveData(cacheKey,fromRpc);
+                //解锁操作
+                cacheOpsService.unlock(skuId);
+                return fromRpc;
+            }
+            // 说明没获取到锁
+            try {
+                Thread.sleep(1000);
+                return cacheOpsService.getCacheData(cacheKey,SkuDetailTo.class);
+            } catch (InterruptedException e) {
+            }
+        }
+
+        return cacheData;
     }
 }
 
