@@ -1,5 +1,6 @@
 package com.atguigu.gmall.common.result;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -9,6 +10,7 @@ import lombok.Data;
  *
  */
 @Data
+@JsonIgnoreProperties(ignoreUnknown = true)
 @ApiModel(value = "全局统一返回结果")
 public class Result<T> {
 

@@ -1,7 +1,6 @@
 package com.atguigu.gmall.item.api;
 
 import com.atguigu.gmall.common.result.Result;
-import com.atguigu.gmall.item.feign.SkuDetailFeignClient;
 import com.atguigu.gmall.item.service.SkuDetailService;
 import com.atguigu.gmall.model.to.SkuDetailTo;
 import io.swagger.annotations.Api;

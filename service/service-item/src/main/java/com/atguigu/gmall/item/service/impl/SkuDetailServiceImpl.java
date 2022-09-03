@@ -2,15 +2,15 @@ package com.atguigu.gmall.item.service.impl;
 
 import com.atguigu.gmall.common.constant.SysRedisConst;
 import com.atguigu.gmall.common.result.Result;
-import com.atguigu.gmall.item.cache.CacheOpsService;
-import com.atguigu.gmall.item.feign.SkuDetailFeignClient;
+import com.atguigu.gmall.feign.product.SkuProductFeignClient;
 import com.atguigu.gmall.item.service.SkuDetailService;
 import com.atguigu.gmall.model.product.SkuImage;
 import com.atguigu.gmall.model.product.SkuInfo;
 import com.atguigu.gmall.model.product.SpuSaleAttr;
 import com.atguigu.gmall.model.to.CategoryViewTo;
 import com.atguigu.gmall.model.to.SkuDetailTo;
-import com.fasterxml.jackson.databind.node.ContainerNode;
+import com.atguigu.starter.cache.annotation.GmallCache;
+import com.atguigu.starter.cache.service.CacheOpsService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,13 +28,29 @@ import java.util.concurrent.*;
 public class SkuDetailServiceImpl implements SkuDetailService {
 
     @Autowired
-    SkuDetailFeignClient skuDetailFeignClient;
+    SkuProductFeignClient skuDetailFeignClient;
     // 可配置的线程池，可自动注入
     @Autowired
     ThreadPoolExecutor executor;
 
     @Autowired
     CacheOpsService cacheOpsService;
+
+    /*
+    * #{#params}  表达式中的params代表方法中的所有参数列表
+    *   [0]  索引0代表方法中参数的第1个
+    * */
+    @GmallCache(cacheKey = SysRedisConst.SKU_INFO_PREFIX + "#{#params[0]}",
+                bloomName = SysRedisConst.BLOOM_SKUID,
+                bloomValue = "#{#params[0]}",
+                lockName = SysRedisConst.LOCK_SKU_DETAIL+"#{#params[0]}",
+                ttl = 60*60*24*7
+    )
+    @Override
+    public SkuDetailTo getSkuDetail(Long skuId) {
+        SkuDetailTo fromRpc = getSkuDetailFromRpc(skuId);
+        return fromRpc;
+    }
 
 
     public SkuDetailTo getSkuDetailFromRpc(Long skuId) {
@@ -102,8 +118,7 @@ public class SkuDetailServiceImpl implements SkuDetailService {
         return detailTo;
     }
 
-    @Override
-    public SkuDetailTo getSkuDetail(Long skuId) {
+    public SkuDetailTo getSkuDetailWithCache(Long skuId) {
         String cacheKey = SysRedisConst.SKU_INFO_PREFIX + skuId;
         //先查缓存
         SkuDetailTo cacheData = cacheOpsService.getCacheData(cacheKey,SkuDetailTo.class);
@@ -136,11 +151,9 @@ public class SkuDetailServiceImpl implements SkuDetailService {
 
         return cacheData;
     }
+
+
 }
-
-
-
-
 
 
 
