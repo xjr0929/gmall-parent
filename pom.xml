@@ -8,7 +8,7 @@
         <module>model</module>
         <module>service</module>
         <module>server-gateway</module>
-        <module>web-all</module>
+        <module>mall-cache-starter</module>
     </modules>
 
     <!--引入spring boot 父工程-->
