@@ -22,9 +22,7 @@ import java.util.Date;
 import java.util.List;
 
 /**
-* @author 86136
-* @description 针对表【sku_info(库存单元表)】的数据库操作Service实现
-* @createDate 2022-08-23 18:42:09
+针对表【sku_info(库存单元表)】的数据库操作Service实现
 */
 @Service
 public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoMapper, SkuInfo>

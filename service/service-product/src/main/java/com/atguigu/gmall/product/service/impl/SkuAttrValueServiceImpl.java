@@ -13,9 +13,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 /**
-* @author 86136
-* @description 针对表【sku_attr_value(sku平台属性值关联表)】的数据库操作Service实现
-* @createDate 2022-08-23 18:42:09
+针对表【sku_attr_value(sku平台属性值关联表)】的数据库操作Service实现
 */
 @Service
 public class SkuAttrValueServiceImpl extends ServiceImpl<SkuAttrValueMapper, SkuAttrValue>

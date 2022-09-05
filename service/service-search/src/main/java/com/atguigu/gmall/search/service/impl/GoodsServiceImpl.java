@@ -154,8 +154,6 @@ public class GoodsServiceImpl implements GoodsService {
 
     /**
      * 制造老连接
-     * @param paramVo
-     * @return
      */
     private String makeUrlParam(SearchParamVo paramVo) {
         // list.html?&k=v
