@@ -23,6 +23,7 @@ public class SkuController {
     @Autowired
     SkuInfoService skuInfoService;
 
+
     @ApiOperation(value = "分页查询sku信息")
     @GetMapping("list/{pn}/{ps}")
     public Result getSkuList(@PathVariable("pn")Long pn,

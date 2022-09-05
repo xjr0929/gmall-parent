@@ -4,6 +4,10 @@ import lombok.Data;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
 
+/**
+ * @Author xjrstart
+ * @Date 2022-09-05-20:24
+ */
 @Data
 public class SearchAttr {
     // 平台属性Id
@@ -15,6 +19,4 @@ public class SearchAttr {
     // 平台属性名
     @Field(type = FieldType.Keyword)
     private String attrName;
-
-
 }
