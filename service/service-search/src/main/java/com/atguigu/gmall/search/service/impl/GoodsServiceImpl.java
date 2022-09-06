@@ -74,8 +74,6 @@ public class GoodsServiceImpl implements GoodsService {
 
     /**
      * 根据检索到的记录，构建响应结果
-     * @param goods
-     * @return
      */
     private SearchResponseVo buildSearchResponseResult(SearchHits<Goods> goods,
                                                        SearchParamVo paramVo) {
