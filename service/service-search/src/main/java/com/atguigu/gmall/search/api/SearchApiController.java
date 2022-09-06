@@ -9,6 +9,8 @@ import com.atguigu.gmall.search.service.GoodsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
+
 /**
  * @Author xjrstart
  * @Date 2022-09-05-19:15
@@ -41,6 +43,23 @@ public class SearchApiController {
     public Result<SearchResponseVo> search(@RequestBody SearchParamVo paramVo){
         SearchResponseVo responseVo = goodsService.search(paramVo);
         return Result.ok(responseVo);
+    }
+
+    // 增加热度分
+    @GetMapping("/goods/hotScore/{skuId}")
+    public Result updateHotScore(@PathVariable("skuId") Long skuId,
+                                 @RequestParam("score") Long score,
+                                 HttpServletResponse response){
+        goodsService.updateHotScore(skuId,score);
+
+        /*
+        * 会话cookie；
+        *   默认当前会话有效，只要浏览器关闭就销毁
+        *   每个Cookie都有自己的作用域范围
+        * */
+
+        return Result.ok();
+
     }
 
 }

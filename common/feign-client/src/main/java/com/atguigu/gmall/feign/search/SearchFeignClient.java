@@ -22,6 +22,11 @@ public interface SearchFeignClient {
     @PostMapping("/goods/search")
     Result<SearchResponseVo> search(@RequestBody SearchParamVo paramVo);
 
+    // 增加热度分
+    @GetMapping("/goods/hotScore/{skuId}")
+    Result updateHotScore(@PathVariable("skuId") Long skuId,
+                                @RequestParam("score") Long score);
+
 }
 
 
